@@ -23,7 +23,7 @@
 
   STOP_DELAY = 200;
 
-  DUMMY_IMAGES = 2;
+  DUMMY_IMAGES = 1;
 
   WINDOW_HEIGHT = 768;
 
@@ -129,12 +129,16 @@
       return this.stopped = true;
     };
 
-    Wheel.prototype.makeCache = function() {
+    Wheel.prototype.selected = function(selected) {
+      this.makeCache(selected);
+    };
+
+    Wheel.prototype.makeCache = function(selected=null) {
       var c, cctx, key, tagName, _ref, _results;
-      this.tagImage = [];
+      this.tagImage      = [];
       this.tagImageWhite = [];
-      _ref = this.tagNames;
-      _results = [];
+      _ref      = this.tagNames;
+      _results  = [];
       for (key in _ref) {
         tagName = _ref[key];
         c = document.createElement('canvas');
@@ -145,7 +149,11 @@
         cctx.font = "" + FONT_HEIGHT + "px " + FONT;
         cctx.textBaseline = "middle";
         cctx.textAlign = "left";
-        cctx.fillStyle = "#000";
+        if(selected){
+          selected.includes(tagName) ? cctx.fillStyle = "#bbb" : cctx.fillStyle = "#000";
+        }else{
+          cctx.fillStyle = "#000"
+        }
         cctx.fillText(tagName, 0, WHEEL_HEIGHT / 2);
         cctx.restore();
         this.tagImage[key] = c;
@@ -306,24 +314,21 @@
 
   })();
 
-  digits = 0;
-
-  count = 0;
-
-  imageLoadCount = 0;
-
-  lists = [];
-
+  digits          = 0;
+  count           = 0;
+  imageLoadCount  = 0;
+  lists           = [];
+  selected        = [];
   window.lists = lists;
 
   window.loadSlot = function(data) {
     var avatar, datum, entry, key, value, _results;
-    count = data.length;
-    lists.avatar = [];
-    lists.id = [];
-    lists.name = [];
-    lists.email = [];
-    _results = [];
+    count         = data.length;
+    lists.avatar  = [];
+    lists.id      = [];
+    lists.name    = [];
+    lists.img     = [];
+    _results      = [];
     for (entry in data) {
       datum = data[entry];
       if (datum.id.length > digits) digits = datum.id.length;
@@ -331,10 +336,10 @@
         value = datum[key];
         lists[key][entry] = value;
       }
-      avatar = new Image;
-      avatar.onload = imageLoaded;
-      avatar.onerror = imageError;
-      avatar.src = "http://www.gravatar.com/avatar/" + datum.email + "?s=" + FONT_HEIGHT + "&d=404";
+      avatar          = new Image;
+      avatar.onload   = imageLoaded;
+      avatar.onerror  = imageError;
+      avatar.src      = datum.img
       _results.push(lists.avatar[entry] = avatar);
     }
     return _results;
@@ -370,24 +375,28 @@
     WINDOW_HEIGHT = canvas.height = window.innerHeight;
     if (canvas.getContext) {
       ctx = canvas.getContext("2d");
-      wheelGroup = new WheelGroup(ctx);
+      wheelGroup  = new WheelGroup(ctx);
       avatarWheel = new AvatarWheel(ctx, lists.avatar);
-      textWheel = new TextWheel(ctx, lists.name, 1000);
+      textWheel   = new TextWheel(ctx, lists.name, 1000);
       wheelGroup.add(avatarWheel);
       wheelGroup.add(textWheel);
       picks = (function() {
-        _results = [];
-        for (var _i = 0, _ref = count - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }
+        _results = {};
+        for (var _i = 0, _ref = count - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; 0 <= _ref ? _i++ : _i--){ _results[_i] = lists.name[_i]; }
         return _results;
       }).apply(this);
       pick = function() {
-        var choice, picked;
-        if (picks.length > 0) {
-          choice = Math.floor(Math.random() * picks.length);
-          picked = picks[choice];
-          picks.splice(choice, 1);
-          avatarWheel.setTarget(picked);
-          return textWheel.setTarget(picked);
+        var choice, picked, picksLen=0;
+        for(key in picks){ picksLen++;}
+        if (picksLen > 0) {
+          choice   = Math.floor(Math.random() * picksLen) ;
+          picked   = Object.keys(picks)[choice];
+          selected.push(picks[picked]);
+          avatarWheel.setTarget(picked );
+          textWheel.selected(selected);
+          picksLen--;
+          delete picks[picked];
+          return textWheel.setTarget(picked );
         } else {
           return window.alert("All people are selected out");
         }
@@ -414,13 +423,15 @@
       };
       delay = 0;
       canvas.onclick = function() {
-        if (wheelGroup.stopped && !wheelGroup.rotating) {
+        if (wheelGroup.stopped && !wheelGroup.rotating && selected.length < lists.name.length ) {
           wheelGroup.start();
           return delay = setTimeout(pickAndStop, 3000);
         } else if (!wheelGroup.stopped && wheelGroup.rotating) {
           clearTimeout(delay);
           pick();
           return wheelGroup.stop(false);
+        }else{
+          window.alert('All people are selected out');
         }
       };
       return requestAnimationFrame(redraw);
