@@ -1,5 +1,5 @@
 (function() {
-  var ACCELERATION_BASE, ACCELERATION_RANDOM, AvatarWheel, DUMMY_IMAGES, FONT, FONT_HEIGHT, NUMBER_WIDTH, NumberWheel, NumberWheelGroup, PADDING_H, PADDING_V, STOP_DELAY, TextWheel, VELOCITY_MAX, WHEEL_HEIGHT, WINDOW_HEIGHT, WINDOW_WIDTH, Wheel, WheelGroup, allImagesLoaded, count, digits, imageError, imageErrorCount, imageLoadCount, imageLoaded, lists, mod,
+  var ACCELERATION_BASE, ACCELERATION_RANDOM, AvatarWheel, DUMMY_IMAGES, FONT, FONT_HEIGHT, NUMBER_WIDTH, PADDING_H, PADDING_V, STOP_DELAY, TextWheel, VELOCITY_MAX, WHEEL_HEIGHT, WINDOW_HEIGHT, WINDOW_WIDTH, Wheel, WheelGroup, allImagesLoaded, count, digits, imageError, imageErrorCount, imageLoadCount, imageLoaded, lists, mod,
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -169,22 +169,6 @@
 
   })();
 
-  NumberWheel = (function(_super) {
-
-    __extends(NumberWheel, _super);
-
-    function NumberWheel(ctx) {
-      NumberWheel.__super__.constructor.call(this, ctx);
-      this.tagNames = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-      this.ctx.font = "" + FONT_HEIGHT + "px sans-serif";
-      this.width = this.ctx.measureText("0").width;
-      this.makeCache();
-    }
-
-    return NumberWheel;
-
-  })(Wheel);
-
   AvatarWheel = (function(_super) {
 
     __extends(AvatarWheel, _super);
@@ -322,35 +306,6 @@
 
   })();
 
-  NumberWheelGroup = (function(_super) {
-
-    __extends(NumberWheelGroup, _super);
-
-    function NumberWheelGroup(ctx, digits) {
-      var i, newWheel;
-      NumberWheelGroup.__super__.constructor.call(this, ctx);
-      for (i = 1; 1 <= digits ? i <= digits : i >= digits; 1 <= digits ? i++ : i--) {
-        newWheel = new NumberWheel(this.ctx);
-        this.add(newWheel);
-      }
-      this.width += PADDING_H;
-    }
-
-    NumberWheelGroup.prototype.setTarget = function(number) {
-      var i, wheel, _ref, _results;
-      _results = [];
-      for (i = _ref = this.wheels.length - 1; _ref <= 0 ? i <= 0 : i >= 0; _ref <= 0 ? i++ : i--) {
-        wheel = this.wheels[i];
-        wheel.setTarget(number % 10);
-        _results.push(number = Math.floor(number / 10));
-      }
-      return _results;
-    };
-
-    return NumberWheelGroup;
-
-  })(WheelGroup);
-
   digits = 0;
 
   count = 0;
@@ -399,7 +354,7 @@
   };
 
   allImagesLoaded = function() {
-    var avatarWheel, canvas, ctx, delay, numberWheelGroup, pick, pickAndStop, picks, redraw, requestAnimationFrame, textWheel, wheelGroup, _i, _ref, _results;
+    var avatarWheel, canvas, ctx, delay, pick, pickAndStop, picks, redraw, requestAnimationFrame, textWheel, wheelGroup, _i, _ref, _results;
     canvas = document.getElementById("c");
     requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
     if (!requestAnimationFrame) {
@@ -416,10 +371,8 @@
     if (canvas.getContext) {
       ctx = canvas.getContext("2d");
       wheelGroup = new WheelGroup(ctx);
-      numberWheelGroup = new NumberWheelGroup(ctx, digits);
       avatarWheel = new AvatarWheel(ctx, lists.avatar);
       textWheel = new TextWheel(ctx, lists.name, 1000);
-      wheelGroup.add(numberWheelGroup);
       wheelGroup.add(avatarWheel);
       wheelGroup.add(textWheel);
       picks = (function() {
@@ -433,7 +386,6 @@
           choice = Math.floor(Math.random() * picks.length);
           picked = picks[choice];
           picks.splice(choice, 1);
-          numberWheelGroup.setTarget(parseInt(lists.id[picked]));
           avatarWheel.setTarget(picked);
           return textWheel.setTarget(picked);
         } else {
