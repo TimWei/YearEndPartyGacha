@@ -1,7 +1,8 @@
-Slot
+YearEndPartyGacha
 ====
+forked from [Slot](https://github.com/medicalwei/slot)
 
-This is the slot first used in Firefox x Ubuntu Release Party 12.04. Utilized HTML5 canvas and is fun!
+Slot Machine used for year-end party lottery
 
 attend.js
 ---------
