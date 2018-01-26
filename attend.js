@@ -1,5 +1,5 @@
 window.loadSlot([
-{"id":"1","img":"https://i.imgur.com/3D2lTM9.png","name":"Tim"},
+{"id":"1","img":"https://avatars2.githubusercontent.com/u/13130496?s=460&v=4","name":"Tim"},
 {"id":"2","img":"Tim","name":"Ken"},
 {"id":"3","img":"Tim","name":"Zeta"},
 {"id":"4","img":"Tim","name":"Kaun"},
