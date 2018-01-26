@@ -314,7 +314,6 @@
 
   })();
 
-  digits          = 0;
   count           = 0;
   imageLoadCount  = 0;
   lists           = [];
@@ -331,7 +330,6 @@
     _results      = [];
     for (entry in data) {
       datum = data[entry];
-      if (datum.id.length > digits) digits = datum.id.length;
       for (key in datum) {
         value = datum[key];
         lists[key][entry] = value;
